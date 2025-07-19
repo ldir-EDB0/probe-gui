@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Probe Sender</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    label { display: block; margin-top: 10px; }
+    select, input[type="file"], button { margin-top: 5px; width: 300px; }
+  </style>
+</head>
+<body>
+  <h1>Probe Sender</h1>
+
+  <button id="selectFileBtn">Select Excel File</button>
+  <p id="selectedFile">No file selected</p>
+
+  <label for="probeSelect">Select Probe:</label>
+  <select id="probeSelect"></select>
+
+  <label>Select Groups:</label>
+  <div id="groupList"></div>
+
+  <button id="pushBtn">Push to Probe</button>
+  <button id="generateAllBtn">Generate All</button>
+
+  <script src="renderer.js"></script>
+<h2>Log</h2>
+<pre id="log" style="background:#eee;padding:10px;max-height:200px;overflow:auto;"></pre>
+</body>
+</html>
+
