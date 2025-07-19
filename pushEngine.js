@@ -1,13 +1,10 @@
 // pushEngine.js
 const fs = require('fs');
 const xlsx = require('xlsx');
-const { parseWorkbook } = require('./excelParser');
 
 const { processSheet, processAllSheets, pushConfig } = require('./probeLogic');  
 
-function pushSelected(filePath, probe, groups, interfaceMap, profiles) {
-  const workbook = xlsx.readFile(filePath);
-
+function pushSelected(workbook, probe, groups, interfaceMap, profiles) {
   let allmulticasts = [];
 
   for (const sheet of groups) {
@@ -25,10 +22,7 @@ function pushSelected(filePath, probe, groups, interfaceMap, profiles) {
 }
 
 
-async function generateAll(filePath, outputDir) {
-  const workbook = xlsx.readFile(filePath);
-  const { probes, groups, interfaceByNameVlan, profiles } = parseWorkbook(filePath);
-
+async function generateAll(workbook, probes, groups, interfaceByNameVlan, profiles, outputDir) {
   processAllSheets(workbook, groups, probes, interfaceByNameVlan, profiles, outputDir);
   return `Config files generated for ${probes.length} probes × ${groups.length} groups.`;
 }

@@ -1,6 +1,9 @@
 let interfaceMap = {};
 let profiles = {};
 let currentFile = '';
+let probes = [];
+let groups = [];
+let workbook = null;
 
 function log(msg) {
   const logEl = document.getElementById('log');
@@ -21,8 +24,11 @@ document.getElementById('selectFileBtn').addEventListener('click', async () => {
     return;
   }
 
-  const { probes, groups, interfaceByNameVlan, profiles: parsedProfiles } = result;
+  const { probes: pb, groups: gp, interfaceByNameVlan, profiles: parsedProfiles, workbook: wb } = result;
 
+  probes = pb;
+  groups = gp;
+  workbook = wb;
   interfaceMap = interfaceByNameVlan;
   profiles = parsedProfiles;
 
@@ -47,7 +53,7 @@ document.getElementById('pushBtn').addEventListener('click', async () => {
 
   log(`📤 Pushing to probe: ${probe}...`);
   const res = await window.electronAPI.pushSelected(
-    currentFile,
+    workbook,
     probe,
     groups,
     interfaceMap,
@@ -59,6 +65,12 @@ log(res.msg || JSON.stringify(res));
 
 document.getElementById('generateAllBtn').addEventListener('click', async () => {
   if (!currentFile) return alert('Please select an Excel file.');
-  const res = await window.electronAPI.generateAll(currentFile);
+  const res = await window.electronAPI.generateAll(
+    workbook,
+    probes,
+    groups,
+    interfaceMap,
+    profiles
+  );
   alert(res.msg);
 });

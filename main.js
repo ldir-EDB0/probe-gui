@@ -4,9 +4,9 @@ const { parseWorkbook } = require('./excelParser');
 const { pushSelected, generateAll } = require('./pushEngine');
 
 ipcMain.handle('push-selected', async (_e, args) => {
-  const { filePath, probe, groups, interfaceMap, profiles } = args;
+  const { workbook, probe, groups, interfaceMap, profiles } = args;
   try {
-    const msg = await pushSelected(filePath, probe, groups, interfaceMap, profiles);
+    const msg = await pushSelected(workbook, probe, groups, interfaceMap, profiles);
     return { ok: true, msg };
   } catch (err) {
     return { ok: false, msg: err.message };
@@ -14,7 +14,9 @@ ipcMain.handle('push-selected', async (_e, args) => {
 });
 
 
-ipcMain.handle('generate-all', async (_e, filePath) => {
+ipcMain.handle('generate-all', async (_e, args) => {
+  const {workbook, probes, groups, interfaceMap, profiles} = args;
+
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory']
   });
@@ -26,7 +28,7 @@ ipcMain.handle('generate-all', async (_e, filePath) => {
   const outputDir = filePaths[0];
 
   try {
-    const msg = await generateAll(filePath, outputDir);
+    const msg = await generateAll(workbook, probes, groups, interfaceMap, profiles, outputDir);
     return { ok: true, msg };
   } catch (err) {
     return { ok: false, msg: err.message };

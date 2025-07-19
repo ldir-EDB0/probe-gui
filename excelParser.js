@@ -18,7 +18,8 @@ function parseWorkbook(filePath) {
     probes: probeNames,
     groups: sheetNames,
     interfaceByNameVlan,
-    profiles
+    profiles,
+    workbook,
   };
 }
 

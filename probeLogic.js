@@ -197,12 +197,12 @@ async function pushConfig(interfaceByNameVlan, probe, multicasts) {
 // Process all sheets in the workbook
 // for each probe, and for each multicast sheet, generate a config file
 // and write it to the output directory
-function processAllSheets(workbook, sheetNames, Probes, interfaceByNameVlan, profiles, outputDir) {
+function processAllSheets(workbook, sheetNamesl, Probes, interfaceByNameVlan, profiles, outputDir) {
 
   // create base output directory if it doesn't exist
   fs.mkdirSync(outputDir, { recursive: true });
 
-  for (const sheetName of sheetNames) {
+  for (const sheetName of sheetNamesl) {
     for (const probe of Probes) {
       const multicasts = processSheet(workbook, sheetName, probe, interfaceByNameVlan, profiles);
       if (multicasts) writeConfigFile(outputDir, probe, sheetName, multicasts);
