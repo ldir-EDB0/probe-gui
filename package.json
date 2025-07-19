@@ -8,9 +8,9 @@
     "make": "electron-forge make"
   },
   "keywords": [],
-  "author": "",
+  "author": "KDB",
   "license": "ISC",
-  "description": "",
+  "description": "probe gui",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1",
     "fast-xml-parser": "^5.2.5",
