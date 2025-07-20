@@ -1,10 +1,14 @@
 const xlsx = require('xlsx');
 const ip = require('ip');
+const sharedState = require('./sharedState');
 
 const skipSheets = new Set(['unicast', 'profiles', 'validation']);
 
 function parseWorkbook(filePath) {
   const workbook = xlsx.readFile(filePath);
+
+  sharedState.set('currentFile', filePath);
+  sharedState.set('workbook', workbook);
 
   // Sheet names = groups (excluding skipped)
   const sheetNames = workbook.SheetNames.filter(name => !skipSheets.has(name));
@@ -14,13 +18,10 @@ function parseWorkbook(filePath) {
   const { probeNames, interfaceByNameVlan } = processUnicastSheet(workbook);
   const profiles = processProfilesSheet(workbook);
 
-  return {
-    probes: probeNames,
-    groups: sheetNames,
-    interfaceByNameVlan,
-    profiles,
-    workbook,
-  };
+  sharedState.set('profiles', profiles);
+  sharedState.set('probes', probeNames);
+  sharedState.set('groups', sheetNames);
+  sharedState.set('interfaceMap', interfaceByNameVlan);
 }
 
 /**

@@ -2,11 +2,12 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { parseWorkbook } = require('./excelParser');
 const { pushSelected, generateAll } = require('./pushEngine');
+const sharedState = require('./sharedState');
 
 ipcMain.handle('push-selected', async (_e, args) => {
-  const { workbook, probe, groups, interfaceMap, profiles } = args;
+  const { probe, groups } = args;
   try {
-    const msg = await pushSelected(workbook, probe, groups, interfaceMap, profiles);
+    const msg = await pushSelected(probe, groups);
     return { ok: true, msg };
   } catch (err) {
     return { ok: false, msg: err.message };
@@ -14,8 +15,7 @@ ipcMain.handle('push-selected', async (_e, args) => {
 });
 
 
-ipcMain.handle('generate-all', async (_e, args) => {
-  const {workbook, probes, groups, interfaceMap, profiles} = args;
+ipcMain.handle('generate-all', async (_e) => {
 
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory']
@@ -28,7 +28,7 @@ ipcMain.handle('generate-all', async (_e, args) => {
   const outputDir = filePaths[0];
 
   try {
-    const msg = await generateAll(workbook, probes, groups, interfaceMap, profiles, outputDir);
+    const msg = await generateAll(outputDir);
     return { ok: true, msg };
   } catch (err) {
     return { ok: false, msg: err.message };
@@ -38,8 +38,13 @@ ipcMain.handle('generate-all', async (_e, args) => {
 
 ipcMain.handle('parse-excel', async (_event, filePath) => {
   try {
-    const parsed = parseWorkbook(filePath);
-    return parsed;
+    await parseWorkbook(filePath);
+
+    return {
+      probes: sharedState.get('probes'),
+      groups: sharedState.get('groups'),
+    };
+
   } catch (err) {
     console.error('Error parsing Excel:', err);
     return { error: err.message };
@@ -80,5 +85,3 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
-
-

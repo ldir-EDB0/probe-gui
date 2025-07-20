@@ -3,6 +3,7 @@ const path = require('path');
 const xlsx = require('xlsx');
 const fetch = require('node-fetch');
 const { XMLBuilder } = require('fast-xml-parser');
+const sharedState = require('./sharedState');
 
 // Build multicast channel object from the passed parameters
 // referencing the profile for content, audio depth, sample rate & channel order
@@ -30,7 +31,11 @@ function buildMcastChannel(name, source_ip, multicast, port, iface, profile, gro
 
 // Process individual sheet and generate multicasts
 // returns an array of multicast channel objects for designated probe
-function processSheet(workbook, sheetName, probe, interfaceByNameVlan, profiles) {
+function processSheet(sheetName, probe) {
+  const workbook = sharedState.get('workbook');
+  const interfaceMap = sharedState.get('interfaceMap');
+  const profiles = sharedState.get('profiles');
+
   console.log(`🔄 Processing sheet: ${sheetName}`);
   const sheet = workbook.Sheets[sheetName];
   const json = xlsx.utils.sheet_to_json(sheet, { defval: '' });
@@ -64,8 +69,8 @@ function processSheet(workbook, sheetName, probe, interfaceByNameVlan, profiles)
     const profile = profiles[profileName] || {};
   
     // Get probe interface name for VLAN
-    const iface_a = interfaceByNameVlan[`${probe}-${vlan_a}`];
-    const iface_b = interfaceByNameVlan[`${probe}-${vlan_b}`];
+    const iface_a = interfaceMap[`${probe}-${vlan_a}`];
+    const iface_b = interfaceMap[`${probe}-${vlan_b}`];
 
     //A leg
     if (iface_a && source_ip_a && multicast_a) {
@@ -151,8 +156,10 @@ function writeConfigFile(outputDir, probe, sheetName, multicasts) {
 // Get the URL for the probe's import/export endpoint
 // returns a URL object or null if the interface is not found
 // the dtv interface is used for pushing config to the probe
-function getProbeUrl(interfaceByNameVlan, probe) {
-  const iface = interfaceByNameVlan[`${probe}-dtv`];
+function getProbeUrl(probe) {
+  const interfaceMap = sharedState.get('interfaceMap');
+
+  const iface = interfaceMap[`${probe}-dtv`];
   if (!iface) {
     console.error(`❌ Error: DTV Interface for probe "${probe}" not found.`);
     return null;
@@ -167,8 +174,8 @@ function getProbeUrl(interfaceByNameVlan, probe) {
 // Push config to specified probe
 // get the URL for the probe's import/export endpoint, generate the XML from multicasts
 // and POST it to the probe
-async function pushConfig(interfaceByNameVlan, probe, multicasts) {
-  const probeUrl = getProbeUrl(interfaceByNameVlan, probe);
+async function pushConfig(probe, multicasts) {
+  const probeUrl = getProbeUrl(probe);
   if (!probeUrl) return { ok: false, msg: `No valid interface for probe "${probe}"` };
 
   const btechxml = wrapXml(multicasts);
@@ -197,17 +204,22 @@ async function pushConfig(interfaceByNameVlan, probe, multicasts) {
 // Process all sheets in the workbook
 // for each probe, and for each multicast sheet, generate a config file
 // and write it to the output directory
-function processAllSheets(workbook, sheetNamesl, Probes, interfaceByNameVlan, profiles, outputDir) {
+async function processAllSheets(outputDir) {
 
   // create base output directory if it doesn't exist
   fs.mkdirSync(outputDir, { recursive: true });
 
-  for (const sheetName of sheetNamesl) {
-    for (const probe of Probes) {
-      const multicasts = processSheet(workbook, sheetName, probe, interfaceByNameVlan, profiles);
+  const probes = sharedState.get('probes');
+  const groups = sharedState.get('groups');
+
+  for (const sheetName of groups) {
+    for (const probe of probes) {
+      const multicasts = processSheet(sheetName, probe);
+
       if (multicasts) writeConfigFile(outputDir, probe, sheetName, multicasts);
     }
   }
+  return {ok: true, msg: `Config files generated for ${probes.length} probes × ${groups.length} groups.`};
 }
 
 module.exports = {

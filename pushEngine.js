@@ -4,11 +4,11 @@ const xlsx = require('xlsx');
 
 const { processSheet, processAllSheets, pushConfig } = require('./probeLogic');  
 
-function pushSelected(workbook, probe, groups, interfaceMap, profiles) {
+function pushSelected(probe, groups) {
   let allmulticasts = [];
 
   for (const sheet of groups) {
-    const casts = processSheet(workbook, sheet, probe, interfaceMap, profiles);
+    const casts = processSheet(sheet, probe);
     if (Array.isArray(casts) && casts.length) {
       allmulticasts.push(...casts);
     }
@@ -18,13 +18,12 @@ function pushSelected(workbook, probe, groups, interfaceMap, profiles) {
     return `⚠️ No valid multicasts found for probe “${probe}”.`;
   }
 
-  return pushConfig(interfaceMap, probe, allmulticasts).then(result => result.msg);
+  return pushConfig(probe, allmulticasts).then(result => result.msg);
 }
 
 
-async function generateAll(workbook, probes, groups, interfaceByNameVlan, profiles, outputDir) {
-  processAllSheets(workbook, groups, probes, interfaceByNameVlan, profiles, outputDir);
-  return `Config files generated for ${probes.length} probes × ${groups.length} groups.`;
+function generateAll(outputDir) {
+  return processAllSheets(outputDir).then(result => result.msg);
 }
 
 
