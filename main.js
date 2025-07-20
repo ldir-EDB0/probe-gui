@@ -1,3 +1,4 @@
+const logger = require('./logger');
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { parseWorkbook } = require('./excelParser');
@@ -16,7 +17,6 @@ ipcMain.handle('push-selected', async (_e, args) => {
 
 
 ipcMain.handle('generate-all', async (_e) => {
-
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory']
   });
@@ -28,8 +28,10 @@ ipcMain.handle('generate-all', async (_e) => {
   const outputDir = filePaths[0];
 
   try {
-    const msg = await generateAll(outputDir);
-    return { ok: true, msg };
+//    const msg = generateAll(outputDir);
+//    return { msg };
+    const result = await generateAll(outputDir);
+    return { ok: true, msg: result.msg };
   } catch (err) {
     return { ok: false, msg: err.message };
   }

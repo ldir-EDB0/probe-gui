@@ -4,6 +4,7 @@ const xlsx = require('xlsx');
 const fetch = require('node-fetch');
 const { XMLBuilder } = require('fast-xml-parser');
 const sharedState = require('./sharedState');
+const logger = require('./logger');
 
 // Build multicast channel object from the passed parameters
 // referencing the profile for content, audio depth, sample rate & channel order
@@ -36,12 +37,12 @@ function processSheet(sheetName, probe) {
   const interfaceMap = sharedState.get('interfaceMap');
   const profiles = sharedState.get('profiles');
 
-  console.log(`🔄 Processing sheet: ${sheetName}`);
+  logger.info(`🔄 Processing sheet: ${sheetName}`);
   const sheet = workbook.Sheets[sheetName];
   const json = xlsx.utils.sheet_to_json(sheet, { defval: '' });
 
   if (json.length === 0) {
-    console.warn(`⚠️  Skipping empty sheet: ${sheetName}`);
+    logger.warn(`⚠️  Skipping empty sheet: ${sheetName}`);
     return null;
   }
 
@@ -91,7 +92,7 @@ function processSheet(sheetName, probe) {
     }
   }
 
-  console.log(`✅ Sheet "${sheetName}": ${multicasts.length} entries (skipped ${skipped})`);
+  logger.info(`✅ Sheet "${sheetName}": ${multicasts.length} entries (skipped ${skipped})`);
   return multicasts.length ? multicasts : null;
 }
 
@@ -150,7 +151,7 @@ function writeConfigFile(outputDir, probe, sheetName, multicasts) {
   const outputPath = path.join(probeoutputDir, `${safeSheetName}.xml`);
 
   fs.writeFileSync(outputPath, btechxml);
-  console.log(`💾 Written: ${outputPath}`);
+  logger.info(`💾 Written: ${outputPath}`);
 }
 
 // Get the URL for the probe's import/export endpoint
@@ -161,11 +162,11 @@ function getProbeUrl(probe) {
 
   const iface = interfaceMap[`${probe}-dtv`];
   if (!iface) {
-    console.error(`❌ Error: DTV Interface for probe "${probe}" not found.`);
+    logger.error(`❌ Error: DTV Interface for probe "${probe}" not found.`);
     return null;
   }
   if (!iface.hostIP) {
-    console.error(`❌ Error: Host IP for probe "${probe}" is not defined.`);
+    logger.error(`❌ Error: Host IP for probe "${probe}" is not defined.`);
     return null;
   }
   return new URL(`http://${iface.hostIP}/probe/core/importExport/data.xml`);
@@ -179,7 +180,7 @@ async function pushConfig(probe, multicasts) {
   if (!probeUrl) return { ok: false, msg: `No valid interface for probe "${probe}"` };
 
   const btechxml = wrapXml(multicasts);
-  console.log(`📤 Pushing config to probe ${probe} using URL ${probeUrl}`);
+  logger.info(`📤 Pushing config to probe ${probe} using URL ${probeUrl}`);
 
   try {
     const res = await fetch(probeUrl, {
@@ -193,7 +194,7 @@ async function pushConfig(probe, multicasts) {
       return { ok: false, msg: `❌ HTTP ${res.status}: ${errorText}` };
     }
 
-    console.log(`✅ Successfully uploaded XML to ${probe}`);
+    logger.info(`✅ Successfully uploaded XML to ${probe}`);
     return { ok: true, msg: `✅ Pushed config to ${probe}` };
   } catch (err) {
     return { ok: false, msg: `❌ Network error pushing to ${probe}: ${err.message}` };
@@ -204,7 +205,8 @@ async function pushConfig(probe, multicasts) {
 // Process all sheets in the workbook
 // for each probe, and for each multicast sheet, generate a config file
 // and write it to the output directory
-async function processAllSheets(outputDir) {
+// was async
+function processAllSheets(outputDir) {
 
   // create base output directory if it doesn't exist
   fs.mkdirSync(outputDir, { recursive: true });

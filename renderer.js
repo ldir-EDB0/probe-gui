@@ -1,10 +1,20 @@
-let currentFile = '';
 
-function log(msg) {
+function log(level, msg) {
   const logEl = document.getElementById('log');
-  logEl.textContent += msg + '\n';
+  const emoji = {
+    info: 'ℹ️',
+    warn: '⚠️',
+    error: '❌'
+  }[level] || '';
+  logEl.textContent += `${emoji} ${msg}\n`;
   logEl.scrollTop = logEl.scrollHeight;
 }
+
+window.electronAPI.onLogMessage((level, msg) => {
+  log(level, msg);
+});
+
+let currentFile = '';
 
 document.getElementById('selectFileBtn').addEventListener('click', async () => {
   const filePath = await window.electronAPI.selectExcelFile();
@@ -40,18 +50,18 @@ document.getElementById('pushBtn').addEventListener('click', async () => {
   if (!probe) return alert('Select a probe.');
   if (!groups.length) return alert('Select at least one group.');
 
-  log(`📤 Pushing to probe: ${probe}...`);
+  log('info', `📤 Pushing to probe: ${probe}...`);
   const res = await window.electronAPI.pushSelected(
     probe,
     groups,
   );
-log(res.msg || JSON.stringify(res));
+log('info', res.msg || JSON.stringify(res));
 
 });
 
 document.getElementById('generateAllBtn').addEventListener('click', async () => {
   if (!currentFile) return alert('Please select an Excel file.');
   const res = await window.electronAPI.generateAll();
-  log(res.msg || JSON.stringify(res));
+  log('info', res.msg || JSON.stringify(res));
 
 });

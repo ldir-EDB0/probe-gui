@@ -23,7 +23,7 @@ function pushSelected(probe, groups) {
 
 
 function generateAll(outputDir) {
-  return processAllSheets(outputDir).then(result => result.msg);
+  return processAllSheets(outputDir); //.then(result => result.msg);
 }
 
 

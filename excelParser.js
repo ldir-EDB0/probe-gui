@@ -1,6 +1,7 @@
 const xlsx = require('xlsx');
 const ip = require('ip');
 const sharedState = require('./sharedState');
+const logger = require('./logger');
 
 const skipSheets = new Set(['unicast', 'profiles', 'validation']);
 
@@ -32,36 +33,33 @@ function parseWorkbook(filePath) {
  * returns an object with hostIP, prefix, and gatewayIP.
  */
 function parseIPGW(input) {
-  if (!input || !input.includes('/') || !input.includes('.')) {
-    return { hostIP: '', prefix: '', gatewayIP: '' };
-  }
+  const result = { hostIP: '', prefix: '', gatewayIP: '' };
+
+  if (!input || !input.includes('/') || !input.includes('.')) return result;
 
   const match = input.match(/^(.+?)\/(\d{1,2})\/(\.\d+)$/);
-  if (!match) return { hostIP: '', prefix: '', gatewayIP: '' };
+  if (!match) return result;
 
   const [_, hostIP, prefixStr, suffixStr] = match;
   const prefix = parseInt(prefixStr, 10);
-  if (!ip.isV4Format(hostIP) || isNaN(prefix) || prefix < 24 || prefix > 32) {
-    return { hostIP: '', prefix: '', gatewayIP: '' };
-  }
+
+  if (!ip.isV4Format(hostIP) || isNaN(prefix) || prefix < 24 || prefix > 32) return result;
 
   const hostParts = hostIP.split('.');
-  const suffix = suffixStr.slice(1); // '.129' → '129'
+  const suffix = suffixStr.slice(1); // strip the leading dot
 
   const gatewayIP = `${hostParts[0]}.${hostParts[1]}.${hostParts[2]}.${suffix}`;
-
-  if (!ip.isV4Format(gatewayIP)) return { hostIP: '', prefix: '', gatewayIP: '' };
+  if (!ip.isV4Format(gatewayIP)) return result;
 
   // Sanity check: host and gateway must be in the same /24
   if (hostParts.slice(0, 3).join('.') !== gatewayIP.split('.').slice(0, 3).join('.')) {
-    return { hostIP: '', prefix: '', gatewayIP: '' };
+    return result;
   }
 
-  return {
-    hostIP,
-    prefix,
-    gatewayIP,
-  };
+  result.hostIP = hostIP;
+  result.prefix = prefix;
+  result.gatewayIP = gatewayIP;
+  return result;
 }
 
 // Process unicast sheet and extract interface data
@@ -87,7 +85,7 @@ function processUnicastSheet(workbook) {
     const {hostIP, prefix, gatewayIP} = parseIPGW(row['IP_PRFX_GW']);
 
     if (!hostIP || !prefix || !gatewayIP) {
-      console.warn(`⚠️  Invalid IP/Prefix/Gateway for ${Name} (${Vlan}) address "${row['IP_PRFX_GW']}", skipping...`);
+      logger.warn(`Invalid IP/Prefix/Gateway for ${Name} (${Vlan}) address "${row['IP_PRFX_GW']}", skipping...`);
       continue;
     }
 
@@ -106,7 +104,7 @@ function processUnicastSheet(workbook) {
     }
   }
 
-  console.log(`Found ${probeNames.length} Probes in unicast sheet`);
+  logger.info(`Found ${probeNames.length} Probes in unicast sheet`);
   return { probeNames, interfaceByNameVlan };
 }
 
@@ -137,7 +135,7 @@ function processProfilesSheet(workbook) {
     }
   }
 
-  console.log(`Found ${Object.keys(profiles).length} profiles in profiles sheet`);
+  logger.info(`Found ${Object.keys(profiles).length} profiles in profiles sheet`);
   return profiles;
 }
 
