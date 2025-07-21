@@ -7,19 +7,39 @@
     body { font-family: sans-serif; margin: 20px; }
     label { display: block; margin-top: 10px; }
     select, input[type="file"], button { margin-top: 5px; width: 300px; }
+    #groupList {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+    .horizontal {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* space between label and select */
+    margin-top: 10px;
+    }
+    .horizontal label {
+      margin: 0; /* override earlier top-margin */
+      white-space: nowrap; /* keep label on one line */
+    }
   </style>
 </head>
 <body>
   <h1>Probe Sender</h1>
+<div class="horizontal">
+  <label for="selectFileBtn">Select Excel File:</label>
+  <button id="selectFileBtn">Choose File</button>
+</div>
+<p id="selectedFile">No file selected</p>
 
-  <button id="selectFileBtn">Select Excel File</button>
-  <p id="selectedFile">No file selected</p>
-
-  <label for="probeSelect">Select Probe:</label>
-  <select id="probeSelect">
-    <option value="" disabled selected>-- Select a probe --</option>
-  <!-- Populate dynamically below -->
-  </select>
+  <div class="horizontal">
+    <label for="probeSelect">Select Probe:</label>
+    <select id="probeSelect">
+      <option value="" disabled selected>-- Select a probe --</option>
+    </select>
+  </div>
 
   <label>Select Groups:</label>
   <div id="groupList"></div>
