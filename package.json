@@ -1,32 +1,46 @@
 {
   "name": "probe-gui",
-  "version": "1.0.0",
+  "version": "4.0.0",
+  "description": "Network probe configuration GUI",
   "main": "main.js",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "start": "electron .",
+    "dist": "electron-builder"
   },
-  "keywords": [],
-  "author": "KDB",
-  "license": "ISC",
-  "description": "probe gui",
+  "build": {
+    "appId": "com.yourdomain.probegui",
+    "productName": "Probe GUI",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{test,__tests__,examples}/**",
+      "!forge.config.js"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "author": "Kevin Darbyshire-Bryant",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.2.5",
+    "electron-builder": "^24.6.0"
+  },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1",
     "fast-xml-parser": "^5.2.5",
-    "ip": "^2.0.1",
+    "ip": "^1.1.8",
+    "js-yaml": "^4.1.0",
     "node-fetch": "^2.7.0",
     "xlsx": "^0.18.5"
-  },
-  "devDependencies": {
-    "@electron-forge/cli": "^7.8.1",
-    "@electron-forge/maker-deb": "^7.8.1",
-    "@electron-forge/maker-rpm": "^7.8.1",
-    "@electron-forge/maker-squirrel": "^7.8.1",
-    "@electron-forge/maker-zip": "^7.8.1",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
-    "@electron-forge/plugin-fuses": "^7.8.1",
-    "@electron/fuses": "^1.8.0",
-    "electron": "^37.2.3"
   }
 }
