@@ -15,15 +15,15 @@ function pushSelected(probe, groups) {
   }
 
   if (!allmulticasts.length) {
-    return `⚠️ No valid multicasts found for probe “${probe}”.`;
+    return {ok: false, msg: `⚠️ No valid multicasts found for probe “${probe}”.` };
   }
 
-  return pushConfig(probe, allmulticasts).then(result => result.msg);
+  return pushConfig(probe, allmulticasts); //.then(result => result.msg);
 }
 
 
 function generateAll(outputDir) {
-  return processAllSheets(outputDir); //.then(result => result.msg);
+  return processAllSheets(outputDir);
 }
 
 

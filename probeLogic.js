@@ -194,8 +194,7 @@ async function pushConfig(probe, multicasts) {
       return { ok: false, msg: `❌ HTTP ${res.status}: ${errorText}` };
     }
 
-    logger.info(`✅ Successfully uploaded XML to ${probe}`);
-    return { ok: true, msg: `✅ Pushed config to ${probe}` };
+    return { ok: true, msg: `✅ Pushed XML config to ${probe}` };
   } catch (err) {
     return { ok: false, msg: `❌ Network error pushing to ${probe}: ${err.message}` };
   }

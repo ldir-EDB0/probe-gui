@@ -8,8 +8,8 @@ const sharedState = require('./sharedState');
 ipcMain.handle('push-selected', async (_e, args) => {
   const { probe, groups } = args;
   try {
-    const msg = await pushSelected(probe, groups);
-    return { ok: true, msg };
+    const result = await pushSelected(probe, groups);
+    return { ok: true, msg: result.msg };
   } catch (err) {
     return { ok: false, msg: err.message };
   }
