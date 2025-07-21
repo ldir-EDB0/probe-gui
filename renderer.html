@@ -16,7 +16,10 @@
   <p id="selectedFile">No file selected</p>
 
   <label for="probeSelect">Select Probe:</label>
-  <select id="probeSelect"></select>
+  <select id="probeSelect">
+    <option value="" disabled selected>-- Select a probe --</option>
+  <!-- Populate dynamically below -->
+  </select>
 
   <label>Select Groups:</label>
   <div id="groupList"></div>

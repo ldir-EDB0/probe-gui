@@ -32,13 +32,28 @@ document.getElementById('selectFileBtn').addEventListener('click', async () => {
   const { probes, groups } = result;
 
   const probeSelect = document.getElementById('probeSelect');
-  probeSelect.innerHTML = probes.map(p => `<option value="${p}">${p}</option>`).join('');
+  probeSelect.innerHTML = '<option value="" disabled selected>-- Select a probe --</option>';
+
+  probes.forEach(probe => {
+    const option = document.createElement('option');
+    option.value = probe;
+    option.textContent = probe;
+    probeSelect.appendChild(option);
+  });
+
 
   const groupList = document.getElementById('groupList');
   groupList.innerHTML = groups.map(g =>
     `<label><input type="checkbox" value="${g}"> ${g}</label>`
   ).join('');
 });
+
+document.getElementById('probeSelect').addEventListener('change', () => {
+  const selected = document.getElementById('probeSelect').value;
+  document.getElementById('pushBtn').disabled = !selected;
+});
+
+document.getElementById('pushBtn').disabled = true;
 
 document.getElementById('pushBtn').addEventListener('click', async () => {
   if (!currentFile) return alert('Please select an Excel file.');
