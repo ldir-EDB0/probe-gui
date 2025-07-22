@@ -1,6 +1,6 @@
 {
   "name": "probe-gui",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Network probe configuration GUI",
   "main": "main.js",
   "scripts": {
@@ -39,7 +39,6 @@
   "dependencies": {
     "fast-xml-parser": "^5.2.5",
     "ip": "^1.1.8",
-    "js-yaml": "^4.1.0",
     "node-fetch": "^2.7.0",
     "xlsx": "^0.18.5"
   }
