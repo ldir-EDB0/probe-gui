@@ -1,15 +1,15 @@
 {
-  "name": "probe-gui",
+  "name": "probe-wrangler",
   "version": "4.0.1",
-  "description": "Network probe configuration GUI",
+  "description": "Bridgetech Network probe multicast uploader GUI",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.yourdomain.probegui",
-    "productName": "Probe GUI",
+    "appId": "com.yourdomain.probewrangler",
+    "productName": "Probe Wrangler",
     "directories": {
       "output": "dist"
     },
