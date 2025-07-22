@@ -16,12 +16,16 @@ window.electronAPI.onLogMessage((level, msg) => {
 
 let currentFile = '';
 
+document.getElementById('pushBtn').disabled = true;
+document.getElementById('generateAllBtn').disabled = true;
+
 document.getElementById('selectFileBtn').addEventListener('click', async () => {
   const filePath = await window.electronAPI.selectExcelFile();
   if (!filePath) return;
 
   currentFile = filePath;
-  document.getElementById('selectedFile').innerText = `Selected: ${filePath}`;
+  const filename = filePath.split(/[/\\]/).pop(); // handles Windows + POSIX paths
+  document.getElementById('selectedFile').innerText = `Loaded: ${filename}`;
 
   const result = await window.electronAPI.parseExcelFile(filePath);
   if (result.error) {
@@ -41,19 +45,18 @@ document.getElementById('selectFileBtn').addEventListener('click', async () => {
     probeSelect.appendChild(option);
   });
 
-
   const groupList = document.getElementById('groupList');
   groupList.innerHTML = groups.map(g =>
     `<label><input type="checkbox" value="${g}"> ${g}</label>`
   ).join('');
+
+  document.getElementById('generateAllBtn').disabled = false;
 });
 
 document.getElementById('probeSelect').addEventListener('change', () => {
   const selected = document.getElementById('probeSelect').value;
   document.getElementById('pushBtn').disabled = !selected;
 });
-
-document.getElementById('pushBtn').disabled = true;
 
 document.getElementById('pushBtn').addEventListener('click', async () => {
   if (!currentFile) return alert('Please select an Excel file.');
@@ -70,13 +73,11 @@ document.getElementById('pushBtn').addEventListener('click', async () => {
     probe,
     groups,
   );
-log('info', res.msg || JSON.stringify(res));
-
+  log('info', res.msg || JSON.stringify(res));
 });
 
 document.getElementById('generateAllBtn').addEventListener('click', async () => {
   if (!currentFile) return alert('Please select an Excel file.');
   const res = await window.electronAPI.generateAll();
   log('info', res.msg || JSON.stringify(res));
-
 });

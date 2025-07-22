@@ -1,6 +1,6 @@
 // pushEngine.js
-const fs = require('fs');
-const xlsx = require('xlsx');
+//const fs = require('fs');
+//const xlsx = require('xlsx');
 
 const { processSheet, processAllSheets, pushConfig } = require('./probeLogic');  
 
@@ -21,11 +21,9 @@ function pushSelected(probe, groups) {
   return pushConfig(probe, allmulticasts); //.then(result => result.msg);
 }
 
-
 function generateAll(outputDir) {
   return processAllSheets(outputDir);
 }
-
 
 module.exports = { pushSelected, generateAll };
 

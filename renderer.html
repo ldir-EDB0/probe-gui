@@ -28,11 +28,10 @@
 </head>
 <body>
   <h1>Probe Sender</h1>
-<div class="horizontal">
-  <label for="selectFileBtn">Select Excel File:</label>
-  <button id="selectFileBtn">Choose File</button>
-</div>
-<p id="selectedFile">No file selected</p>
+  <div class="horizontal">
+    <button id="selectFileBtn">Load Excel File</button>
+    <p id="selectedFile">No file loaded</p>
+  </div>
 
   <div class="horizontal">
     <label for="probeSelect">Select Probe:</label>
@@ -48,8 +47,8 @@
   <button id="generateAllBtn">Generate All</button>
 
   <script src="renderer.js"></script>
-<h2>Log</h2>
-<pre id="log" style="background:#eee;padding:10px;max-height:200px;overflow:auto;"></pre>
+  <h2>Log</h2>
+  <pre id="log" style="background:#eee;padding:10px;max-height:200px;overflow:auto;"></pre>
 </body>
 </html>
 
