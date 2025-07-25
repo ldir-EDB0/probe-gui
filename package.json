@@ -1,6 +1,6 @@
 {
   "name": "probe-wrangler",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Bridgetech Network probe multicast uploader GUI",
   "main": "main.js",
   "scripts": {

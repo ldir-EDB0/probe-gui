@@ -1,7 +1,3 @@
-// pushEngine.js
-//const fs = require('fs');
-//const xlsx = require('xlsx');
-
 const { processSheet, processAllSheets, pushConfig } = require('./probeLogic');  
 
 function pushSelected(probe, groups) {
@@ -18,7 +14,7 @@ function pushSelected(probe, groups) {
     return {ok: false, msg: `⚠️ No valid multicasts found for probe “${probe}”.` };
   }
 
-  return pushConfig(probe, allmulticasts); //.then(result => result.msg);
+  return pushConfig(probe, allmulticasts);
 }
 
 function generateAll(outputDir) {

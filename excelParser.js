@@ -104,8 +104,18 @@ function processUnicastSheet(workbook) {
     }
   }
 
-  logger.info(`Found ${probeNames.length} Probes in unicast sheet`);
-  return { probeNames, interfaceByNameVlan };
+  const validProbes = probeNames.filter(probe => {
+    const hasDTV = interfaceByNameVlan[`${probe}-dtv`];
+    const hasDFF = interfaceByNameVlan[`${probe}-dff-a`] || interfaceByNameVlan[`${probe}-dff-b`];
+    if (!hasDTV || !hasDFF) {
+      logger.warn(`Probe "${probe}" is missing DTV or DFF interfaces, skipping...`);
+      return false;
+    }
+    return true;
+  });
+
+  logger.info(`Found ${validProbes.length} valid Probes in unicast sheet`);
+  return { probeNames: validProbes, interfaceByNameVlan };
 }
 
 // Process profiles sheet

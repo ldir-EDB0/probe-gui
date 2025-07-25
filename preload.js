@@ -14,7 +14,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
       groups,
     }),
   generateAll: () =>
-    ipcRenderer.invoke('generate-all', {
-    }),
+    ipcRenderer.invoke('generate-all'),
 });
 
