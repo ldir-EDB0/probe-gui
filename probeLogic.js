@@ -87,6 +87,14 @@ function processSheet(sheetName, probe) {
       multicasts.push(buildMcastChannel(mname, source_ip_b, multicast_b, profile.port_no_b, iface_b.Interface, profile, groups, page, join));
     }
 
+    if (multicast_a && !iface_a) {
+      logger.warn(`⚠️  Multicast ${name}: no suitable vlan interface "${vlan_a}" found for probe "${probe}"`);
+    }
+
+    if (multicast_b && !iface_b) {
+      logger.warn(`⚠️  Multicast ${name}: no suitable vlan interface "${vlan_b}" found for probe "${probe}"`);
+    }
+
     if ((!multicast_a && !multicast_b) || (!source_ip_a && !source_ip_b)) {
       skipped++;
     }

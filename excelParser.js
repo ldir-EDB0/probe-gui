@@ -73,7 +73,7 @@ function processUnicastSheet(workbook) {
   let json = xlsx.utils.sheet_to_json(sheet, { defval: '' });
   if (json.length === 0) throw new Error('⚠️  Error: "unicast" sheet is empty');
 
-  const probeNames = [];
+  let probeNames = [];
   const interfaceByNameVlan = {};
 
   for (const row of json) {
@@ -85,7 +85,7 @@ function processUnicastSheet(workbook) {
     const {hostIP, prefix, gatewayIP} = parseIPGW(row['IP_PRFX_GW']);
 
     if (!hostIP || !prefix || !gatewayIP) {
-      logger.warn(`Invalid IP/Prefix/Gateway for ${Name} (${Vlan}) address "${row['IP_PRFX_GW']}", skipping...`);
+      logger.warn(`Invalid IP/Prefix/Gateway for ${Name} (${Vlan}) address "${row['IP_PRFX_GW']}", discarding...`);
       continue;
     }
 
@@ -104,29 +104,30 @@ function processUnicastSheet(workbook) {
     }
   }
 
-  const validProbes = probeNames.filter(probe => {
+  probeNames = probeNames.filter(probe => {
     const hasDTV = interfaceByNameVlan[`${probe}-dtv`];
     const hasDFF = interfaceByNameVlan[`${probe}-dff-a`] || interfaceByNameVlan[`${probe}-dff-b`];
     if (!hasDTV || !hasDFF) {
-      logger.warn(`Probe "${probe}" is missing DTV or DFF interfaces, skipping...`);
+      logger.warn(`Probe "${probe}" is missing DTV or DFF interfaces, discarding...`);
       return false;
     }
     return true;
   });
 
-  logger.info(`Found ${validProbes.length} valid Probes in unicast sheet`);
-  return { probeNames: validProbes, interfaceByNameVlan };
+  logger.info(`Found ${probeNames.length} valid Probes in unicast sheet`);
+  return { probeNames, interfaceByNameVlan };
 }
 
 // Process profiles sheet
-// return a dictionary of audio/video profiles from the profiles sheet
-// assume reasonable defaults for sample rate, audio depth, channel order, and ports
+// returns dictionary of audio/video profiles
+// assume reasonable defaults for content type, sample rate, audio depth, channel order, and ports
+// of aes67, 48000, 24, ST, 5004, 5004
 function processProfilesSheet(workbook) {
   const sheet = workbook.Sheets['profiles'];
-  if (!sheet) throw new Error('⚠️  Error: "profiles" sheet not found, I need some data from it.');
+  if (!sheet) throw new Error('⚠️  Error: "profiles" sheet not found');
 
   const json = xlsx.utils.sheet_to_json(sheet, { defval: '' });
-  if (json.length === 0) throw new Error('⚠️  Error: "profiles" sheet is empty, I need some data from it.');
+  if (json.length === 0) throw new Error('⚠️  Error: "profiles" sheet is empty');
 
   const profiles = {};
 
@@ -149,6 +150,4 @@ function processProfilesSheet(workbook) {
   return profiles;
 }
 
-
 module.exports = { parseWorkbook };
-
